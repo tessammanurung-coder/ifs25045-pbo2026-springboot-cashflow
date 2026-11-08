@@ -180,6 +180,27 @@ class FinanceViewTest {
         assertEquals(1, useCase.getAllTransactions().size());
     }
 
+    @Test
+    void exposesAccessibleLandmarksAndLabels() {
+        FinanceView view = _get(FinanceView.class);
+        assertEquals("main", view.getElement().getAttribute("role"));
+        assertEquals("status", _get(Paragraph.class).getElement().getAttribute("role"));
+
+        HorizontalLayout summary = (HorizontalLayout) view.getChildren()
+                .filter(HorizontalLayout.class::isInstance)
+                .findFirst()
+                .orElseThrow();
+        assertEquals("region", summary.getElement().getAttribute("role"));
+        assertEquals("Ringkasan keuangan", summary.getElement().getAttribute("aria-label"));
+        assertEquals("Daftar transaksi", _get(Grid.class).getElement().getAttribute("aria-label"));
+
+        clickButton("Tambah Pemasukan");
+        Dialog dialog = _get(Dialog.class);
+        assertEquals("Menambah Pemasukan", dialog.getElement().getProperty("ariaLabel"));
+        assertTrue(dialog.getThemeNames().contains("no-padding"));
+        clickDialogButton(dialog, "Batal");
+    }
+
     private void addTransaction(String buttonCaption, String description, Double amount) {
         clickButton(buttonCaption);
         Dialog dialog = _get(Dialog.class);

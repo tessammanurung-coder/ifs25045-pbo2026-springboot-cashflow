@@ -102,3 +102,28 @@ Jalankan dari root proyek agar file `.env` terbaca.
   ditampilkan sebagai notifikasi error
 - Jumlah selalu berformat pemisah ribuan + 2 desimal, contoh `Rp 1,000,000.00`
 - Penyimpanan sementara di memori (reset saat aplikasi di-restart)
+
+## Optimasi Web (Lighthouse, Axe, SEO)
+
+Perubahan di `framework/web` dan `FinanceView` menjawab temuan Web Grading:
+
+| Temuan | Akar masalah | Perbaikan |
+|---|---|---|
+| Kontras warna (Axe) | Label kartu memakai warna aksen terang; tombol "success" Aura `#00a045` | Semua teks/latar ≥ 4,5:1 (kartu, header dialog, tombol) |
+| Landmark `main` | Konten tidak berada dalam landmark | `FinanceView` ber-`role="main"`; ringkasan `region`, toolbar `group`, status `role="status"` |
+| `lang="en"` | Vaadin mengisi `<html lang>` dari locale server | `IndonesianI18NProvider` → `lang="id"` |
+| Meta description, title | Tidak ada AppShell | `CashflowAppShell` (`@Meta`, judul, favicon) |
+| `robots.txt` tidak valid | URL tidak ada, Vaadin membalas HTML | File statis `META-INF/resources/robots.txt` |
+| Error konsol | `/favicon.ico` 404 | Favicon SVG + `<link rel="icon">` |
+| Cache efisien | Aset ber-hash hanya di-cache 1 jam | `HttpCachePolicyFilter`: `/VAADIN/build/**` immutable 1 tahun, tema 30 hari, halaman/XHR `no-store` |
+| Transfer besar | Respons tanpa kompresi | `server.compression` di `application.yaml` |
+| JS/main-thread | Iconset `@vaadin/icons`, kolom `autoWidth`, `executeJs` pada dialog | Tanpa `VaadinIcon`, lebar kolom tetap, `DialogVariant.NO_PADDING` |
+
+> **Penting:** tanpa `AppShellConfigurator`, Vaadin 25 memuat tema Aura otomatis. Karena `CashflowAppShell`
+> sekarang ada, tema dinyatakan eksplisit (`@StyleSheet(Aura.STYLESHEET)`). Jangan hapus anotasi itu.
+
+`robots.txt` mengizinkan crawling karena audit SEO Lighthouse menggagalkan halaman yang diblokir/`noindex`.
+Aplikasi ini belum punya autentikasi dan datanya hanya di memori; bila nanti menyimpan data pribadi,
+tambahkan autentikasi dan ganti dengan `Disallow: /` serta `X-Robots-Tag: noindex`.
+
+Verifikasi: `./mvnw clean verify -Pproduction` lalu jalankan JAR dan audit URL deployment dengan Lighthouse/Axe.

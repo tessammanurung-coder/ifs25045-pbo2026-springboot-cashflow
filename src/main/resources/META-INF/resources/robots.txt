@@ -1,0 +1,4 @@
+# Aplikasi Cashflow - robots exclusion protocol standar.
+# robots.txt bukan mekanisme keamanan; tidak ada data privat yang disajikan lewat URL statis.
+User-agent: *
+Allow: /

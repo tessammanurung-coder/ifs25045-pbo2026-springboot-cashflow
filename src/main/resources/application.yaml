@@ -12,6 +12,11 @@ spring:
 
 server:
   port: ${APP_PORT:8080}
+  # Kompresi respons: bundel JS/CSS Vaadin berukuran besar; mengurangi byte transfer (FCP/LCP).
+  compression:
+    enabled: true
+    min-response-size: 1KB
+    mime-types: text/html,text/css,text/javascript,application/javascript,application/json,image/svg+xml
 
 vaadin:
   launch-browser: false
